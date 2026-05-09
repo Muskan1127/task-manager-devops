@@ -7,11 +7,8 @@ import AllTasks from "./components/AllTasks";
 import CompletedTasks from "./components/CompletedTasks";
 import PendingTasks from "./components/PendingTasks";
 import ProtectedRoute from "./components/ProtectedRoute";
-import {useState, createContext } from "react";
-import AddTask from "./components/AddTask";
-import DeleteTask from "./components/DeleteTask";
+import { useState, createContext } from "react";
 import Profile from "./components/Profile/Profile";
-import SideBar from "./components/SideBar";
 
 const taskContext = createContext();
 
@@ -29,8 +26,9 @@ function App() {
   const [userEmail, setUserEmail] = useState("user@gmail.com");
   const [image, setImage] = useState(null);
   const [openImage, setOpenImage] = useState(false);
-  const [theme, setTheme] = useState("")
-
+  const [theme, setTheme] = useState("");
+  // isGuest: true when no token — used to gate protected actions without hard redirects
+  const isGuest = !localStorage.getItem("token");
 
   return (
     <taskContext.Provider
@@ -62,32 +60,37 @@ function App() {
         openImage,
         setOpenImage,
         theme,
-        setTheme
+        setTheme,
+        isGuest,
       }}
     >
 
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Auth pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
 
-        {/* Protected Layout Route */}
-        <Route
-          path="/layout"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
+        {/*
+          Main app shell — accessible to everyone.
+          Guests see the UI but protected actions redirect to /login.
+          Profile is still hard-protected since it has no guest-preview value.
+        */}
+        <Route path="/" element={<Layout />}>
           <Route index element={<AllTasks />} />
           <Route path="allTasks" element={<AllTasks />} />
           <Route path="completedTasks" element={<CompletedTasks />} />
           <Route path="pendingTasks" element={<PendingTasks />} />
-          <Route path="addTask" element={<AddTask />} />
-          <Route path="profile" element={<Profile />} />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </taskContext.Provider>
   );

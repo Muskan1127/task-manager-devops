@@ -1,15 +1,19 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useNavigate, useLocation } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Mail, Lock, CheckSquare } from "lucide-react";
+import { Mail, Lock, CheckSquare, ArrowLeft } from "lucide-react";
 
 const inputCls = "w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const url = "https://task-manager-backend-srzi.onrender.com";
+
+  // After login: go back to where they came from, or the dashboard root
+  const from = location.state?.from?.pathname || "/allTasks";
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
@@ -18,7 +22,8 @@ function Login() {
       const response = await axios.post(url + "/api/user/login", data);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("theme", "");
-      navigate("/layout/allTasks");
+      // Full reload so isGuest in App.jsx recalculates from localStorage
+      window.location.href = from;
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -34,6 +39,11 @@ function Login() {
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Welcome back</h1>
           <p className="text-sm text-gray-500 mt-1">Sign in to your TaskManager account</p>
+          {location.state?.from && (
+            <p className="text-xs text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full mt-3 border border-indigo-100">
+              Sign in to continue where you left off
+            </p>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-8">
@@ -67,6 +77,12 @@ function Login() {
               Sign up
             </NavLink>
           </p>
+          <button
+            onClick={() => navigate("/")}
+            className="w-full flex items-center justify-center gap-1.5 mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeft size={13} /> Back to Home
+          </button>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { ContactRound, Mail, Lock, CheckSquare } from "lucide-react";
+import { ContactRound, Mail, Lock, CheckSquare, ArrowLeft } from "lucide-react";
 
 const inputCls = "w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
 
@@ -19,7 +19,8 @@ const SignUp = () => {
       localStorage.setItem("name", response.data.user.name);
       localStorage.setItem("email", response.data.user.email);
       localStorage.setItem("theme", "");
-      navigate("/layout");
+      // Full reload so isGuest in App.jsx recalculates from localStorage
+      window.location.href = "/allTasks";
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -83,6 +84,12 @@ const SignUp = () => {
               Sign in
             </NavLink>
           </p>
+          <button
+            onClick={() => navigate("/")}
+            className="w-full flex items-center justify-center gap-1.5 mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeft size={13} /> Back to Home
+          </button>
         </div>
       </div>
     </div>

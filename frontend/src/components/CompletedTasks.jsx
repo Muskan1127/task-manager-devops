@@ -2,10 +2,10 @@ import React, { useContext, useState, useEffect } from "react";
 import { taskContext } from "../App";
 import DeleteTask from "./DeleteTask";
 import TaskCard from "./TaskCard";
-import { TaskListHeader, EmptyState, LoadingState, EditDialog } from "./AllTasks";
+import { TaskListHeader, EmptyState, LoadingState, EditDialog, GuestEmptyState } from "./AllTasks";
 
 const CompletedTasks = () => {
-  const { completedTasks, error, loading, taskToEdit, setTaskToEdit, open, setOpen } = useContext(taskContext);
+  const { completedTasks, error, loading, taskToEdit, setTaskToEdit, open, setOpen, isGuest } = useContext(taskContext);
   const [filteredTask, setFilteredTask] = useState([]);
   const [filter, setFilter] = useState("");
 
@@ -19,9 +19,11 @@ const CompletedTasks = () => {
   return (
     <div>
       <TaskListHeader title="Completed Tasks" filter={filter} setFilter={setFilter} count={filteredTask.length} />
-      {completedTasks.length === 0
-        ? <EmptyState message="No completed tasks yet. Keep going!" />
-        : <ul className="space-y-3">{filteredTask.map((task) => <TaskCard key={task._id} task={task} />)}</ul>
+      {isGuest
+        ? <GuestEmptyState />
+        : completedTasks.length === 0
+          ? <EmptyState message="No completed tasks yet. Keep going!" />
+          : <ul className="space-y-3">{filteredTask.map((task) => <TaskCard key={task._id} task={task} />)}</ul>
       }
       <EditDialog open={open} setOpen={setOpen} taskToEdit={taskToEdit} setTaskToEdit={setTaskToEdit} />
       <DeleteTask />

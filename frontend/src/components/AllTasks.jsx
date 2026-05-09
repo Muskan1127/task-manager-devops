@@ -1,14 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import { taskContext } from "../App";
-import { ListFilter } from "lucide-react";
+import { ListFilter, Lock } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import EditTask from "./EditTask";
 import DeleteTask from "./DeleteTask";
 import TaskCard from "./TaskCard";
 
 const AllTasks = () => {
-  const { tasks, error, loading, taskToEdit, setTaskToEdit, open, setOpen, theme } = useContext(taskContext);
+  const { tasks, error, loading, taskToEdit, setTaskToEdit, open, setOpen, isGuest } = useContext(taskContext);
   const [filteredTask, setFilteredTask] = useState([]);
   const [filter, setFilter] = useState("");
 
@@ -22,15 +23,19 @@ const AllTasks = () => {
   return (
     <div>
       <TaskListHeader title="All Tasks" filter={filter} setFilter={setFilter} count={filteredTask.length} />
-      {tasks.length === 0
-        ? <EmptyState message="No tasks yet. Add your first task!" />
-        : <ul className="space-y-3">{filteredTask.map((task) => <TaskCard key={task._id} task={task} />)}</ul>
+      {isGuest
+        ? <GuestEmptyState />
+        : tasks.length === 0
+          ? <EmptyState message="No tasks yet. Click 'Add Task' to get started." />
+          : <ul className="space-y-3">{filteredTask.map((task) => <TaskCard key={task._id} task={task} />)}</ul>
       }
       <EditDialog open={open} setOpen={setOpen} taskToEdit={taskToEdit} setTaskToEdit={setTaskToEdit} />
       <DeleteTask />
     </div>
   );
 };
+
+// ─── Shared helpers (used by CompletedTasks & PendingTasks too) ───────────────
 
 export const TaskListHeader = ({ title, filter, setFilter, count }) => (
   <div className="flex justify-between items-center mb-4">
@@ -54,10 +59,32 @@ export const TaskListHeader = ({ title, filter, setFilter, count }) => (
   </div>
 );
 
+export const GuestEmptyState = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  return (
+    <div className="flex flex-col items-center justify-center py-14 text-center">
+      <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-3">
+        <Lock size={22} className="text-indigo-400 dark:text-indigo-500" />
+      </div>
+      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your tasks will appear here</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mb-4 max-w-xs">
+        Sign in to create, manage, and track all your tasks in one place.
+      </p>
+      <button
+        onClick={() => navigate("/login", { state: { from: location } })}
+        className="text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition-colors"
+      >
+        Sign in to get started
+      </button>
+    </div>
+  );
+};
+
 export const EmptyState = ({ message }) => (
-  <div className="flex flex-col items-center justify-center py-16 text-center">
+  <div className="flex flex-col items-center justify-center py-14 text-center">
     <div className="w-14 h-14 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-      <ListFilter size={24} className="text-gray-300 dark:text-gray-600" />
+      <ListFilter size={22} className="text-gray-300 dark:text-gray-600" />
     </div>
     <p className="text-sm text-gray-400 dark:text-gray-500">{message}</p>
   </div>
@@ -72,7 +99,7 @@ export const LoadingState = () => (
   </div>
 );
 
-export const EditDialog = ({ open, setOpen, taskToEdit, setTaskToEdit }) => (
+export const EditDialog = ({ open, setOpen, taskToEdit }) => (
   <Dialog.Root open={open} onOpenChange={setOpen}>
     <Dialog.Portal>
       <Dialog.Overlay className="bg-black/50 fixed inset-0 z-40 backdrop-blur-sm" />
@@ -82,7 +109,10 @@ export const EditDialog = ({ open, setOpen, taskToEdit, setTaskToEdit }) => (
           Update the details of your task.
         </Dialog.Description>
         {taskToEdit && <EditTask setOpen={setOpen} taskToEdit={taskToEdit} />}
-        <Dialog.Close className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="Close">
+        <Dialog.Close
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+          aria-label="Close"
+        >
           <Plus size={20} className="rotate-45" />
         </Dialog.Close>
       </Dialog.Content>
