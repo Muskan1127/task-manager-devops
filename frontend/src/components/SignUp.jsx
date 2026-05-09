@@ -3,170 +3,87 @@ import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { ContactRound, Mail, Lock, UserPlus } from "lucide-react";
+import { ContactRound, Mail, Lock, CheckSquare } from "lucide-react";
+
+const inputCls = "w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const url = "https://task-manager-backend-srzi.onrender.com";
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const handleSignUp = async (data) => {
     try {
-      const response = await axios.post(url + "/api/user/signUp", data); // register user
-      // toast.success("signUp successfull !"); // pop up displaying user signed in successfully
-      localStorage.setItem("token", response.data.token); // set token to local storage as authentication
-      localStorage.setItem("name", response.data.user.name); // set name in local
-      localStorage.setItem("email", response.data.user.email); // set email in local storage
-      localStorage.setItem("theme", ""); // setting theme as light mode initially
-
-      navigate("/layout");  //Dashboard page
-
+      const response = await axios.post(url + "/api/user/signUp", data);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("name", response.data.user.name);
+      localStorage.setItem("email", response.data.user.email);
+      localStorage.setItem("theme", "");
+      navigate("/layout");
     } catch (error) {
       toast.error(error.response.data.message);
-      console.log(error.response.data || error.message);
     }
   };
+
   return (
-    <div className="min-h-screen flex items-center justify-center flex-col px-2 bg-[linear-gradient(90deg,_rgba(240,240,240,1)_0%,_rgba(255,237,237,1)_100%)] ">
-      <div className="bg-white py-8 px-4 lg:px-8 md:px-8 rounded-2xl shadow-md w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          <UserPlus className="inline-block" strokeWidth={3} size={30} /> Sign
-          Up
-        </h1>
-        <form
-          onSubmit={handleSubmit(handleSignUp)}
-          className="space-y-3"
-          noValidate
-        >
-          {/* Name */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700 ml-2">
-              Name:
-            </label>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50 px-4">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center mb-8">
+          <div className="bg-indigo-600 text-white p-3 rounded-2xl mb-3 shadow-lg shadow-indigo-200">
+            <CheckSquare size={28} strokeWidth={2} />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Create account</h1>
+          <p className="text-sm text-gray-500 mt-1">Start managing your tasks today</p>
+        </div>
 
-            <div className="relative flex items-center">
-              <ContactRound className="absolute left-3 text-gray-500" />
-
-              <input
-                type="text"
-                placeholder="Your name"
-                {...register("name", {
-                  required: "Name is required",
-                })}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2`}
-              />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-8">
+          <form onSubmit={handleSubmit(handleSignUp)} className="space-y-4" noValidate>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Name</label>
+              <div className="relative">
+                <ContactRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="text" placeholder="Your name" {...register("name", { required: "Name is required" })} className={`${inputCls} ${errors.name ? "border-red-400" : ""}`} />
+              </div>
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
 
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700 ml-2">
-              Email
-            </label>
-
-            <div className="relative flex items-center">
-              <Mail className="absolute left-3 text-gray-500" />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Enter a valid email address",
-                  },
-                })}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2`}
-              />
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Email</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="email" placeholder="you@example.com" {...register("email", { required: "Email is required", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email" } })} className={`${inputCls} ${errors.email ? "border-red-400" : ""}`} />
+              </div>
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700 ml-2">
-              Password
-            </label>
-
-            <div className="relative flex items-center">
-              <Lock className="absolute left-3 text-gray-500" />
-
-              <input
-                type="password"
-                placeholder="••••••••"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                })}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2`}
-              />
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Password</label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="password" placeholder="Min. 8 characters" {...register("password", { required: "Password is required", minLength: { value: 8, message: "At least 8 characters" } })} className={`${inputCls} ${errors.password ? "border-red-400" : ""}`} />
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
 
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+            <button type="submit" disabled={isSubmitting} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2">
+              {isSubmitting ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
 
-          {/* Submit Button */}
-          <input
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 cursor-pointer"
-            value={isSubmitting ? "Submitting" : "Sign Up"}
-            disabled={isSubmitting}
-          />
-          {/* Sign Up */}
-          {/* </input> */}
-          {!isSubmitting && (
-            <h1 className="text-center text-lg text-gray-600 mt-1">
-              Already have an account?{" "}
-              <NavLink
-                to="/login"
-                className={({ isActive }) =>
-                  `font-semibold underline transition-colors duration-200 ${
-                    isActive
-                      ? "text-red-500"
-                      : "text-blue-600 hover:text-blue-800"
-                  }`
-                }
-              >
-                Login here
-              </NavLink>
-            </h1>
+          {isSubmitting && (
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-gray-400">Setting up your dashboard...</p>
+            </div>
           )}
-        </form>
-        {isSubmitting &&(
-          <div className="flex flex-col items-center mt-4">
-            <div className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-            <p className="mt-2 text-md text-gray-500 animate-pulse text-center">
-            Hold on... we’re creating your dashboard
-            </p>
-          </div>
-        )}
+
+          <p className="text-center text-sm text-gray-500 mt-5">
+            Already have an account?{" "}
+            <NavLink to="/login" className="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+              Sign in
+            </NavLink>
+          </p>
+        </div>
       </div>
     </div>
   );

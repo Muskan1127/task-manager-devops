@@ -1,126 +1,73 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { taskContext } from "../App";
-import { Mail, Lock, LogIn   } from "lucide-react";
+import { Mail, Lock, CheckSquare } from "lucide-react";
 
-function Login(props) {
+const inputCls = "w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
+
+function Login() {
   const navigate = useNavigate();
-  // server url
   const url = "https://task-manager-backend-srzi.onrender.com";
+
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const handleLogin = async (data) => {
     try {
       const response = await axios.post(url + "/api/user/login", data);
-      // send user login credentials to server
-
-      localStorage.setItem("token", response.data.token); // set token in local storage for authorization
-      // toast.success("Login successfull !"); // pop up
-      localStorage.setItem("theme", ""); // setting theme as light mode initially
-      navigate("/layout/allTasks"); // navigate to Home or Dashboard
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("theme", "");
+      navigate("/layout/allTasks");
     } catch (error) {
       toast.error(error.response.data.message);
-      console.log(error.response.data || error.message);
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm();
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-2 bg-[linear-gradient(90deg,_rgba(240,240,240,1)_0%,_rgba(255,237,237,1)_100%)]">
-      <div className="bg-white py-8 px-4 lg:px-8 md:px-8 rounded-2xl shadow-md w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-        <LogIn  className="inline-block" strokeWidth={3} size={25}/>  Login
-        </h1>
-        <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
-          {/* Email Field */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700 ml-2">
-              Email
-            </label>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50 px-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="bg-indigo-600 text-white p-3 rounded-2xl mb-3 shadow-lg shadow-indigo-200">
+            <CheckSquare size={28} strokeWidth={2} />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Welcome back</h1>
+          <p className="text-sm text-gray-500 mt-1">Sign in to your TaskManager account</p>
+        </div>
 
-            <div className="relative flex items-center">
-              <Mail className="absolute left-3 text-gray-500" />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Enter a valid email address",
-                  },
-                })}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2`}
-              />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-8">
+          <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Email</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="email" placeholder="you@example.com" {...register("email", { required: "Email is required", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email" } })} className={`${inputCls} ${errors.email ? "border-red-400 focus:ring-red-400" : ""}`} />
+              </div>
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700 ml-2">
-              Password
-            </label>
-
-            <div className="relative flex items-center">
-              <Lock className="absolute left-3 text-gray-500" />
-
-              <input
-                type="password"
-                placeholder="••••••••"
-                {...register("password", {
-                  required: "Password is required",
-                })}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2`}
-              />
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Password</label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="password" placeholder="••••••••" {...register("password", { required: "Password is required" })} className={`${inputCls} ${errors.password ? "border-red-400 focus:ring-red-400" : ""}`} />
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
 
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+            <button type="submit" disabled={isSubmitting} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2">
+              {isSubmitting ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
 
-          {/* Submit Button */}
-          <input
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 cursor-pointer"
-            value={isSubmitting ? "Logging In" : "Log In"}
-          />
-
-          <h1 className="text-center text-lg text-gray-600 mt-1">
-            Don’t have an account?{" "}
-            <NavLink
-              to="/SignUp"
-              className={({ isActive }) =>
-                `font-semibold underline transition-colors duration-200 ${
-                  isActive
-                    ? "text-red-500"
-                    : "text-blue-600 hover:text-blue-800"
-                }`
-              }
-            >
-              Sign in here
+          <p className="text-center text-sm text-gray-500 mt-5">
+            Don't have an account?{" "}
+            <NavLink to="/signUp" className="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+              Sign up
             </NavLink>
-          </h1>
-        </form>
+          </p>
+        </div>
       </div>
     </div>
   );

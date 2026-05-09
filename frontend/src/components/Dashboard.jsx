@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Plus } from "lucide-react";
+import { Plus, ListChecks, CheckCircle2, Circle, TrendingUp } from "lucide-react";
 import { taskContext } from "../App";
 import AddTask from "./AddTask";
 import SideBar from "./SideBar";
@@ -9,180 +9,127 @@ import axios from "axios";
 
 const Dashboard = () => {
   const {
-    tasks,
-    setTasks,
-    pendingTasks,
-    setPendingTasks,
-    completedTasks,
-    setCompletedTasks,
-    loading,
-    setLoading,
-    setError,
-    setUserName,
-    setUserEmail,
-    setImage,
-    theme,
+    tasks, setTasks,
+    pendingTasks, setPendingTasks,
+    completedTasks, setCompletedTasks,
+    loading, setLoading,
+    setError, setUserName, setUserEmail, setImage, theme,
   } = useContext(taskContext);
 
   const [open, setOpen] = useState(false);
   const url = "https://task-manager-backend-srzi.onrender.com";
 
-  // get user details on every refresh
   useEffect(() => {
     const getUserDetails = async () => {
       try {
-        const token = localStorage.getItem("token"); // extract token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get(url + "/api/user/myDetails", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (response.data.success) {
-          setUserName(response.data.user.name); // set name
-          setUserEmail(response.data.user.email); // set email
-          setImage(response.data.user?.imageUrl); // set image url
+          setUserName(response.data.user.name);
+          setUserEmail(response.data.user.email);
+          setImage(response.data.user?.imageUrl);
         }
       } catch (error) {
         setError("Error while fetching tasks");
-        console.log("Error fetching tasks", error);
       }
     };
-
     getUserDetails();
   }, []);
 
-  //  get all task on every refresh
   useEffect(() => {
     const fetchTasks = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Please wait.");
-        setLoading(false);
-        return;
-      }
-
+      if (!token) { setLoading(false); return; }
       try {
         const response = await axios.get(url + "/api/tasks", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         if (response.data.success) {
-          const fetchedTasks = response.data.tasks;
-          setTasks(fetchedTasks);
-          setCompletedTasks(fetchedTasks.filter((task) => task.completed));
-          setPendingTasks(fetchedTasks.filter((task) => !task.completed));
+          const fetched = response.data.tasks;
+          setTasks(fetched);
+          setCompletedTasks(fetched.filter((t) => t.completed));
+          setPendingTasks(fetched.filter((t) => !t.completed));
         }
       } catch (error) {
         setError("Error while fetching tasks");
-        console.log("Error fetching tasks", error);
       }
       setLoading(false);
     };
-
     fetchTasks();
   }, []);
 
-  const completionRate =
-    tasks.length > 0
-      ? ((completedTasks.length / tasks.length) * 100).toFixed(2)
-      : "0.00";
+  const completionRate = tasks.length > 0
+    ? ((completedTasks.length / tasks.length) * 100).toFixed(0)
+    : "0";
+
+  const stats = [
+    { label: "Total Tasks", value: loading ? "—" : tasks.length, icon: ListChecks, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
+    { label: "Completed", value: loading ? "—" : completedTasks.length, icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
+    { label: "Pending", value: loading ? "—" : pendingTasks.length, icon: Circle, color: "text-amber-500 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-900/20" },
+    { label: "Completion Rate", value: loading ? "—" : `${completionRate}%`, icon: TrendingUp, color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-900/20" },
+  ];
 
   return (
-    <div
-      className={`flex min-h-screen ${
-        theme === "dark"
-          ? "bg-slate-800"
-          : "bg-[linear-gradient(90deg,_rgba(240,240,240,1)_0%,_rgba(255,237,237,1)_100%)]"
-      }`}
-    >
-      {/* Fixed Sidebar */}
-      <div>
-        <SideBar />
-      </div>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
+      <SideBar />
 
-      {/* Main Content with left margin to avoid overlap */}
-      <div className="lg:w-[80%] absolute top-16 right-0 w-[100%] ">
-        <div className="p-6">
+      <div className="lg:ml-[20%] w-full pt-14">
+        <div className="p-4 lg:p-6">
           {/* Header */}
-          <div className="flex justify-between items-center mb-5">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-              Task Overview
-            </h2>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage and track your tasks</p>
+            </div>
 
-            {/* Modal */}
             <Dialog.Root open={open} onOpenChange={setOpen}>
               <Dialog.Trigger asChild>
-                <button className="bg-green-800 text-white lg:text-lg md:text-lg px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-green-700 transition">
-                  Add New Task <Plus size={25} />
+                <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors shadow-sm shadow-indigo-200 dark:shadow-indigo-900">
+                  <Plus size={17} strokeWidth={2.5} /> Add Task
                 </button>
               </Dialog.Trigger>
 
               <Dialog.Portal>
-                <Dialog.Overlay className="bg-black/50 fixed inset-0" />
-                <Dialog.Content className="fixed top-1/2 left-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 shadow-xl z-1000">
-                  <Dialog.Title className="text-lg font-semibold mb-2 text-center">
-                    Add New Task
+                <Dialog.Overlay className="bg-black/50 fixed inset-0 z-40 backdrop-blur-sm" />
+                <Dialog.Content className="fixed top-1/2 left-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl z-50 border border-gray-100 dark:border-slate-700">
+                  <Dialog.Title className="text-lg font-bold text-gray-800 dark:text-white mb-1">
+                    New Task
                   </Dialog.Title>
-                  <Dialog.Description className="text-sm text-gray-600 mb-4 text-center">
-                    {/* Fill in the details below to create a new task. */}
+                  <Dialog.Description className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                    Fill in the details to create a new task.
                   </Dialog.Description>
-
                   <AddTask setOpen={setOpen} />
-
-                  <Dialog.Close
-                    className="absolute top-2 right-2 text-gray-500 hover:text-black"
-                    aria-label="Close"
-                  >
-                    ✕
+                  <Dialog.Close className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="Close">
+                    <Plus size={20} className="rotate-45" />
                   </Dialog.Close>
                 </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>
           </div>
 
-          {/* Task Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:gap-4 gap-2">
-            <StatCard
-              title="Total Tasks"
-              value={loading ? "..." : tasks.length}
-            />
-            <StatCard
-              title="Completed"
-              value={loading ? "..." : completedTasks.length}
-            />
-            <StatCard
-              title="Pending"
-              value={loading ? "..." : pendingTasks.length}
-            />
-            <StatCard title="Completion Rate" value={`${completionRate}%`} />
+          {/* Stat Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+            {stats.map(({ label, value, icon: Icon, color, bg }) => (
+              <div key={label} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-100 dark:border-slate-700/60 shadow-sm">
+                <div className={`inline-flex p-2 rounded-lg ${bg} mb-3`}>
+                  <Icon size={18} className={color} />
+                </div>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{value}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Tasks layout*/}
-        <div
-          className={`lg:p-6 md:p-6 p-2 ${
-            theme === "dark"
-              ? "bg-slate-800"
-              : "bg-[linear-gradient(90deg,_rgba(240,240,240,1)_0%,_rgba(255,237,237,1)_100%)]"
-          }`}
-        >
+        {/* Task List Area */}
+        <div className="px-4 lg:px-6 pb-8">
           <Outlet />
         </div>
       </div>
     </div>
   );
 };
-
-// Reusable Status Card component
-const StatCard = ({ title, value }) => (
-  <div className="bg-white lg:p-4 p-2.5 rounded-lg shadow-md shadow-slate-700 text-center dark:bg-slate-100">
-    <h3 className="text-md text-gray-600">{title}</h3>
-    <p className="lg:text-2xl md:text-2xl text-xl font-bold text-gray-800">
-      {value}
-    </p>
-  </div>
-);
 
 export default Dashboard;

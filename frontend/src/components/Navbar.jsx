@@ -1,15 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Camera,
-  Slack,
-  MoonStar,
-  SunMoon,
-  CircleUser,
-  UserCog,
-  Plus,
-} from "lucide-react";
+import { CheckSquare, CircleUser, UserCog, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
 import { toast } from "react-toastify";
 import { useContext } from "react";
 import { taskContext } from "../App";
@@ -18,15 +9,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const menuref = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [name, setName] = useState("user");
-  const [email, setEmail] = useState("user@gmail.com");
-
   const { userName, userEmail } = useContext(taskContext);
 
-  // handle menubar
-  const handleMenuToggle = () => setMenuOpen((prev) => !prev);
-
-  // closes menu when clicked anywhere
   useEffect(() => {
     const handler = (e) => {
       if (menuref.current && !menuref.current.contains(e.target)) {
@@ -37,7 +21,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // handle logout
   const handleLogout = () => {
     toast.success("Logged Out!");
     setMenuOpen(false);
@@ -45,69 +28,51 @@ const Navbar = () => {
     navigate("/login", { replace: true });
   };
 
-  useEffect(() => {
-    try {
-      setName(userName);
-      setEmail(userEmail);
-    } catch (error) {
-      setName("user");
-      setEmail("user@gamil.com");
-    }
-  }, []);
-
   return (
-    <div className="text-white fixed top-0 w-[100%] z-30 bg-blue-800 dark:bg-blue-950">
-      <nav className="flex justify-around lg:justify-between  py-2.5 w-[80%] m-auto ml-15 lg:m-auto md:m-auto md:justify-between ">
-        <div>
-          <NavLink to="/layout/allTasks">
-            <Slack className="text-orange-600 inline-block" size={45} />{" "}
-            <span className="font-semibold text-2xl ml-0.5 italic">
-              TaskManager
+    <div className="fixed top-0 w-full z-30 bg-white border-b border-gray-200 dark:bg-slate-900 dark:border-slate-700/60 shadow-sm">
+      <nav className="flex justify-between items-center h-14 px-4 lg:px-6 ml-0 lg:ml-[20%]">
+        <NavLink to="/layout/allTasks" className="flex items-center gap-2">
+          <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
+            <CheckSquare size={18} strokeWidth={2.5} />
+          </div>
+          <span className="font-bold text-lg text-gray-800 dark:text-white tracking-tight">
+            TaskManager
+          </span>
+        </NavLink>
+
+        <div ref={menuref} className="relative">
+          <button
+            onClick={() => setMenuOpen((p) => !p)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <CircleUser size={28} className="text-indigo-600 dark:text-indigo-400" />
+            <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {userName}
             </span>
-          </NavLink>
-        </div>
+          </button>
 
-        <div>
-          <ul className="flex justify-center items-center flex-row space-x-5">
-            {/* profile button */}
-            <li
-              ref={menuref}
-              className="relative hover:text-purple-300 transition-colors duration-300"
-            >
-              <button onClick={handleMenuToggle}>
-                <CircleUser size={45} />
-              </button>
-
-              {/* Dropdown of profile button */}
-              {menuOpen && (
-                <ul className="absolute top-10 right-0 w-56 bg-white rounded-2xl text-black shadow-lg px-2">
-                  <li className="p-3 border-b">
-                    <p className="text-lg font-medium">{userName}</p>
-                    <p className="text-md text-gray-500">{userEmail}</p>
-                  </li>
-                  <li className="p-2 my-2 hover:bg-gray-100 rounded-b-xl">
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        navigate("/layout/profile");
-                      }}
-                      className="w-full flex items-center gap-2"
-                      role="menuitem"
-                      title="profile setting"
-                    >
-                      <UserCog /> Profile
-                    </button>
-                  </li>
-                  <li className="p-2 my-1 hover:bg-gray-100 rounded-b-xl">
-                    <button onClick={handleLogout} className="">
-                      <LogOut className="text-red-800 inline text-center size-4.5 text-sm" />
-                      &nbsp; Log Out
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
-          </ul>
+          {menuOpen && (
+            <div className="absolute top-12 right-0 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-700">
+                <p className="text-sm font-semibold text-gray-800 dark:text-white">{userName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userEmail}</p>
+              </div>
+              <div className="p-1">
+                <button
+                  onClick={() => { setMenuOpen(false); navigate("/layout/profile"); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <UserCog size={16} /> Profile Settings
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                >
+                  <LogOut size={16} /> Log Out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
     </div>

@@ -3,19 +3,18 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { taskContext } from "../App";
 
-const EditTask = ({ setOpen, taskToEdit }) => {
-  const { setTasks, setPendingTasks, setCompletedTasks } =
-    useContext(taskContext);
+const inputCls = "w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
+const labelCls = "block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide";
 
+const EditTask = ({ setOpen, taskToEdit }) => {
+  const { setTasks, setPendingTasks, setCompletedTasks } = useContext(taskContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
   const [completed, setCompleted] = useState(false);
-  //server url
   const url = "https://task-manager-backend-srzi.onrender.com";
 
-  // Prevent rendering if taskToEdit is not ready
   if (!taskToEdit) return null;
 
   useEffect(() => {
@@ -28,151 +27,67 @@ const EditTask = ({ setOpen, taskToEdit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!title || !description) {
-      toast.error("Please fill all fields");
-      return;
-    }
-
+    if (!title || !description) { toast.error("Please fill all fields"); return; }
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Token missing! Please log in.");
-      return;
-    }
+    if (!token) { toast.error("Token missing! Please log in."); return; }
 
-    const taskId = taskToEdit._id;
     try {
-      const response = await axios.put(
-        `${url}/api/tasks/${taskId}`,
-        {
-          title,
-          description,
-          priority,
-          dueDate,
-          completed,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await axios.put(`${url}/api/tasks/${taskToEdit._id}`, { title, description, priority, dueDate, completed }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const updatedTask = response.data.updateTask;
-      setOpen(false); // Close modal
-
-      // Replace in main task list
-      setTasks((prev) =>
-        prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
-      );
-
-      // Re-separate based on completion
+      setOpen(false);
+      setTasks((prev) => prev.map((t) => (t._id === updatedTask._id ? updatedTask : t)));
       setCompletedTasks((prev) => {
-        const filtered = prev.filter((task) => task._id !== updatedTask._id);
+        const filtered = prev.filter((t) => t._id !== updatedTask._id);
         return updatedTask.completed ? [...filtered, updatedTask] : filtered;
       });
-
       setPendingTasks((prev) => {
-        const filtered = prev.filter((task) => task._id !== updatedTask._id);
+        const filtered = prev.filter((t) => t._id !== updatedTask._id);
         return !updatedTask.completed ? [...filtered, updatedTask] : filtered;
       });
-
-      toast.success("task Upated!", {
-        autoClose: 1000,
-      });
+      toast.success("Task updated!", { autoClose: 1000 });
     } catch (error) {
-      toast.error("Failed to edit task", {
-        autoClose: 1000,
-      });
-      console.error(error.response?.data?.message || error.message);
+      toast.error("Failed to edit task", { autoClose: 1000 });
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Title */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
+      <div>
+        <label className={labelCls}>Title</label>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} />
       </div>
-
-      {/* Description */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4} // You can increase rows for more initial height
-          className="px-3 py-2 border border-gray-300 rounded-md bg-slate-50 text-sm resize-y overflow-auto focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
+      <div>
+        <label className={labelCls}>Description</label>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={`${inputCls} resize-none`} />
       </div>
-
-      {/* Priority */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">
-          Priority
-        </label>
-        <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-
-      {/* Due Date */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">
-          Due Date
-        </label>
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
-      {/* Completed */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700 mb-1">
-          Completed
-        </label>
-        <div className="flex gap-4 text-sm">
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              checked={completed === true}
-              onChange={() => setCompleted(true)}
-            />
-            Yes
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              checked={completed === false}
-              onChange={() => setCompleted(false)}
-            />
-            No
-          </label>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelCls}>Priority</label>
+          <select value={priority} onChange={(e) => setPriority(e.target.value)} className={inputCls}>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>Due Date</label>
+          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className={inputCls} />
         </div>
       </div>
-
-      {/* Submit */}
-      <button
-        type="submit"
-        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200"
-      >
+      <div>
+        <label className={labelCls}>Status</label>
+        <div className="flex gap-3">
+          {[{ val: false, label: "Pending" }, { val: true, label: "Completed" }].map(({ val, label }) => (
+            <label key={label} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border text-sm font-medium cursor-pointer transition-colors ${completed === val ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400" : "border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800"}`}>
+              <input type="radio" className="sr-only" checked={completed === val} onChange={() => setCompleted(val)} />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
         Update Task
       </button>
     </form>
