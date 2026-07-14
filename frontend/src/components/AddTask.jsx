@@ -15,7 +15,7 @@ const AddTask = ({ setOpen }) => {
   const [completed, setCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const textareaRef = useRef(null);
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   // Manually insert \n at cursor position so Radix Dialog cannot intercept Enter
   const handleDescriptionKeyDown = (e) => {

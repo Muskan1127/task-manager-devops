@@ -11,7 +11,7 @@ const inputCls =
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
   const from = location.state?.from?.pathname || "/allTasks";
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();

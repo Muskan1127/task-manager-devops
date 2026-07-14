@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 4000;
 
 // middleware 
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://task-manager-rfo2.onrender.com"
+  process.env.FRONTEND_URL,
+  "http://localhost:5173"
 ];
 
 app.use(cors({

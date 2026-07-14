@@ -12,7 +12,7 @@ const ProfilePic = () => {
   const [file, setFile] = useState(null);
 
   // Server url (Backend)
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   const fileInputRef = useRef(null);
 

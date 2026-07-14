@@ -14,7 +14,7 @@ const EditTask = ({ setOpen, taskToEdit }) => {
   const [dueDate, setDueDate] = useState("");
   const [completed, setCompleted] = useState(false);
   const textareaRef = useRef(null);
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   if (!taskToEdit) return null;
 

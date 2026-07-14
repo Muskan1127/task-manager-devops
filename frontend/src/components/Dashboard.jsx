@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
     if (isGuest) {

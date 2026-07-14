@@ -10,7 +10,7 @@ const labelCls = "block text-xs font-semibold text-gray-500 dark:text-gray-400 m
 
 function Profile() {
   const { image, setImage, userName, setUserName, userEmail, setUserEmail } = useContext(taskContext);
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors, isSubmitting: isSubmittingProfile }, reset: resetProfile } = useForm({ defaultValues: { name: userName, email: userEmail } });
   const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors, isSubmitting: isSubmittingPassword }, reset: resetPassword } = useForm();

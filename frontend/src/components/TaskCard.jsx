@@ -16,7 +16,7 @@ const statusConfig = {
   pending:   "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
-const url = "https://task-manager-backend-srzi.onrender.com";
+const url = import.meta.env.VITE_API_URL || "";
 
 const TaskCard = ({ task }) => {
   const {

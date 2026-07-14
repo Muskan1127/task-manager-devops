@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react";
 
 const DeleteTask = () => {
   const { setTasks, setPendingTasks, setCompletedTasks, confirmDelete, setConfirmDelete, taskToDelete, setTaskToDelete } = useContext(taskContext);
-  const url = "https://task-manager-backend-srzi.onrender.com";
+  const url = import.meta.env.VITE_API_URL || "";
 
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
